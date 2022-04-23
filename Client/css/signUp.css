@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+:root {
+    --color-body: linear-gradient(to bottom, #8e6c6c, #665348, #3f3b30, #1f221c, #010302);
+}
+
+body {
+    margin    : 0;
+    padding   : 0;
+    background: var(--color-body);
+}
+
+html {
+    min-height: 100%;
+}
+
+main {
+    display             : flex;
+    justify-content     : center;
+    align-items         : center;
+    height              : 42.3rem;
+}
+
+h1 {
+    color: white;
+}
+
+h3 {
+    color        : white;
+    margin-bottom: 1.5rem;
+}
+
+.signUp {
+    display         : flex;
+    flex-direction  : column;
+    align-items     : center;
+    justify-content : center;
+    background-color: rgb(44, 44, 47);
+    width           : 30rem;
+    height          : 40rem;
+    border-radius   : 1rem;
+}
+
+.form {
+    display            : flex;
+    flex-direction     : column;
+    align-items        : center;
+}
+
+.form label {
+    margin-top   : 1rem;
+    margin-bottom: 0.5rem;
+    color        : white;
+}
+
+.form input {
+    border-radius   : 0.5rem;
+    border-color    : black;
+    border-width    : 1.5px;
+    height          : 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.form button {
+    margin-top      : 1rem;
+    border-radius   : 0.5rem;
+    cursor          : pointer;
+    background-color: black;
+    color           : white;
+    width           : 5rem;
+    height          : 1.5rem;
+}

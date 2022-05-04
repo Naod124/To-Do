@@ -63,6 +63,62 @@ app.get('/db',jsonParser, async (req, res) => {
   res.send("1"); 
 }); 
 
+app.get('/notebyEmail',jsonParser, async(req,res)=>{
+  try{
+    const client = await pool.connect();
+    const result = await client.query("SELECT * FROM notes where fk_email = "+"'lidiaabraham0@gmail.com'");
+    const results = { 'results': (result) ? result.rows : null};
+    res.send(results);
+    client.release();
+  }catch(err){
+    console.error(err);
+    res.send("Error" + err);
+  }
+});
+
+
+app.post('/saveNote',jsonParser, async(req,res)=>{
+  //var noteid= req.body.noteid;
+  var title = req.body.title; 
+  console.log(title)
+  var fk_email = 'lidiaabraham0@gmail.com';
+
+  //console.log(noteid + " " + description); 
+
+  const client = await pool.connect();
+    await client.query(  `INSERT INTO "notes" ("title", "fk_email")  
+    VALUES ($1, $2)`, [title,fk_email]);
+
+    res.send("1"); 
+});
+
+
+app.delete('/delete',jsonParser,async(req,res)=>{
+  try{
+    const client = await pool.connect();
+    res = await client.query('DELETE FROM notes where fk_email = '+'"'+req.email+'"');
+    res.send("1"); 
+    client.release();
+  }catch(err){
+    console.error(err);
+    res.send("Error" + err); 
+  }
+    
+});
+
+app.put('/update',jsonParser,async(req,res)=>{ 
+  try{
+    const client = await pool.connect();
+    res = await client.query('UPDATE notes set title = '+'"'+title+'", description = '+'"'+description+'", created_on = Date().toISOString() , fk_email = '+'"lidiaabraham0@gmail.com" where noteid = '+'"'+req.noteid+'"');
+    res.send("1"); 
+    client.release();
+  }catch(err){
+    console.error(err);
+    res.send("Error" + err);
+  }
+    
+});
+
 
   app.listen( 3000, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);

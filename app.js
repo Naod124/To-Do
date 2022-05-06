@@ -94,10 +94,12 @@ app.post('/saveNote',jsonParser, async(req,res)=>{
 });
 
 
-app.delete('/delete',jsonParser,async(req,res)=>{
+app.post('/delete',jsonParser,async(req,res)=>{
+  var id = req.body.id; 
+console.log(id); 
   try{
     const client = await pool.connect();
-    res = await client.query('DELETE FROM notes where fk_email = '+'"'+req.email+'"');
+    await client.query("DELETE FROM notes where noteid = "+"'"+id+"'");
     res.send("1"); 
     client.release();
   }catch(err){
@@ -105,6 +107,7 @@ app.delete('/delete',jsonParser,async(req,res)=>{
     res.send("Error" + err); 
   }
     
+
 });
 
 app.put('/update',jsonParser,async(req,res)=>{ 

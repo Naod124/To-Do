@@ -53,14 +53,13 @@ app.get('/db',jsonParser, async (req, res) => {
 
     var name = req.body.name; 
     var password = req.body.password; 
-    var email = req.body.mail; 
+    var email = req.body.email; 
 
     console.log(name)
     const client = await pool.connect();
      await client.query(  `INSERT INTO "users" ("name", "password", "email")  
     VALUES ($1, $2, $3)`, [name, password,email]);
 
-  
   res.send("1"); 
 }); 
 
@@ -113,7 +112,7 @@ console.log(id);
 app.put('/update',jsonParser,async(req,res)=>{ 
   try{
     const client = await pool.connect();
-    res = await client.query('UPDATE notes set title = '+'"'+title+'", description = '+'"'+description+'", created_on = Date().toISOString() , fk_email = '+'"lidiaabraham0@gmail.com" where noteid = '+'"'+req.noteid+'"');
+    res = await client.query('UPDATE notes set title = '+'"'+title+'", fk_email = '+'"lidiaabraham0@gmail.com" where noteid = '+'"'+req.noteid+'"');
     res.send("1"); 
     client.release();
   }catch(err){
@@ -124,6 +123,6 @@ app.put('/update',jsonParser,async(req,res)=>{
 });
 
 
-  app.listen(process.env.PORT || 3000, function(){
+  app.listen( 3000, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
   });

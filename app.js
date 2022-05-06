@@ -25,15 +25,22 @@ const pool = new Pool({
   port: process.env.PORT
 });
 
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    next();
+  });
 
 // create application/json parser
 var jsonParser = bodyParser.json()
@@ -96,9 +103,43 @@ app.post('/login', jsonParser, async (req, res) => {
   }
 });
 
+
+
+app.post('/login', jsonParser, async (req, res) => {
+
+  var password = req.body.pass;
+  var email = req.body.email;
+
+  try {
+  const client = await pool.connect();
+  const result = await client.query("SELECT * FROM users WHERE email='" + email + "' AND password='" + password +"'");
+  const results = { 'result': (result) ? result.rows : null };
+  console.log(result.rows);
+  
+  if (results.result.length > 0) {
+    session.loggedin = true;
+    session.email = email;
+    res.send("1");
+  } else {
+    res.send("0");
+  }
+  client.release();
+  
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 app.post('/home', jsonParser, async (req, res) => {
 
-  (req.session.loggedin ? res.send('Welcome back, ' + req.session.email + '!') : res.send('Please login to view this page!'));
+  (session.loggedin ? res.send(session.email) : res.send("0"));
+  res.end();
+
+});
+
+app.post('/logout', jsonParser, async (req, res) => {
+
+  (session.loggedin ? session.loggedin = false : res.send("0"));
   res.end();
 
 });
@@ -163,6 +204,6 @@ app.put('/update', jsonParser, async (req, res) => {
 });
 
 
-  app.listen( process.env.PORT || 3000, function(){
+  app.listen( 3000, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
   });

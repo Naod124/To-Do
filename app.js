@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const express = require('express');
+const session = require('express-session');
 const res = require('express/lib/response');
 const { json } = require("body-parser");
 const bodyParser = require('body-parser'); 
@@ -17,6 +18,12 @@ const pool = new Pool({
     host: process.env.HOST,
     port: process.env.PORT
 });
+
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -61,7 +68,39 @@ app.get('/db',jsonParser, async (req, res) => {
     VALUES ($1, $2, $3)`, [name, password,email]);
 
   res.send("1"); 
-}); 
+});
+
+app.post('/login', jsonParser, async (req, res) => {
+
+  var password = req.body.password;
+  var email = req.body.email;
+
+  console.log("This is the email: " + email)
+
+  try {
+  const client = await pool.connect();
+  const result = await client.query("SELECT * FROM users WHERE email='" + email + "' AND password='" + password + "';");
+  const results = { 'result': (result) ? result.rows : null };
+  console.log(results.length);
+  
+  if (results.length != undefined) {
+    req.session.loggedin = true;
+    req.session.email = email;
+  }
+  
+  (results.length === undefined ? res.send("0") : res.send("1"));
+  client.release();
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+app.post('/home', jsonParser, async (req, res) => {
+
+  (req.session.loggedin ? res.send('Welcome back, ' + req.session.email + '!') : res.send('Please login to view this page!'));
+  res.end();
+
+});
 
 app.get('/notebyEmail',jsonParser, async(req,res)=>{
   try{

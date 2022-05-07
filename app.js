@@ -79,42 +79,17 @@ app.post('/register', jsonParser, async (req, res) => {
   res.send("1");
 });
 
-app.post('/login', jsonParser, async (req, res) => {
-
-  var password = req.body.password;
-  var email = req.body.email;
-
-  console.log("This is the email: " + email)
-
-  try {
-  const client = await pool.connect();
-  const result = await client.query("SELECT * FROM users WHERE email='" + email + "' AND password='" + password + "';");
-  const results = { 'result': (result) ? result.rows : null };
-  console.log(results.length);
-  (results.length === undefined ? res.send("0") : res.send("1"));
-
-  if (results.length != undefined) {
-    req.session.loggedin = true;
-    req.session.email = email;
-  }
-  client.release();
-  } catch (err) {
-    console.error(err);
-  }
-});
-
 
 
 app.post('/login', jsonParser, async (req, res) => {
 
   var password = req.body.pass;
   var email = req.body.email;
-
   try {
   const client = await pool.connect();
   const result = await client.query("SELECT * FROM users WHERE email='" + email + "' AND password='" + password +"'");
   const results = { 'result': (result) ? result.rows : null };
-  console.log(result.rows);
+  //console.log(result.rows);
   
   if (results.result.length > 0) {
     session.loggedin = true;
@@ -144,10 +119,12 @@ app.post('/logout', jsonParser, async (req, res) => {
 
 });
 
-app.get('/notebyEmail', jsonParser, async (req, res) => {
+app.post('/notebyEmail', jsonParser, async (req, res) => {
+  var email = req.body.email; 
+  console.log(email); 
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * FROM notes where fk_email = " + "'lidiaabraham0@gmail.com'");
+    const result = await client.query("SELECT * FROM notes where fk_email = " + "'"+email+"'");
     const results = { 'results': (result) ? result.rows : null };
     res.send(results);
     client.release();
@@ -161,14 +138,14 @@ app.get('/notebyEmail', jsonParser, async (req, res) => {
 app.post('/saveNote', jsonParser, async (req, res) => {
   //var noteid= req.body.noteid;
   var title = req.body.title;
+  var username = req.body.email; 
   console.log(title)
-  var fk_email = 'lidiaabraham0@gmail.com';
 
   //console.log(noteid + " " + description); 
 
   const client = await pool.connect();
   await client.query(`INSERT INTO "notes" ("title", "fk_email")  
-    VALUES ($1, $2)`, [title, fk_email]);
+    VALUES ($1, $2)`, [title, username]);
 
   res.send("1");
 });
@@ -180,7 +157,7 @@ app.post('/delete', jsonParser, async (req, res) => {
   try {
     const client = await pool.connect();
     await client.query("DELETE FROM notes where noteid = " + "'" + id + "'");
-    res.send("1");
+    res.send("1"); 
     client.release();
   } catch (err) {
     console.error(err);
@@ -189,6 +166,7 @@ app.post('/delete', jsonParser, async (req, res) => {
 
 
 });
+
 
 app.put('/update', jsonParser, async (req, res) => {
   try {
